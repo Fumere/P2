@@ -33,18 +33,9 @@ class HashTable:
 
     def set(self, key, value):
         hash_key = self.hash_func(key)
-        key_exists = False
+        # key_exists = False
         slot = self.hashmap[hash_key]
-        for i, kv in enumerate(slot):
-            k, v = kv
-            if key == k:
-                key_exists = True
-                break
-
-        if key_exists:
-            slot[i] = ((key, value))
-        else:
-            slot.append((key, value))
+        slot.append((key, value))
 
     def get(self, key):
         hash_key = self.hash_func(key)

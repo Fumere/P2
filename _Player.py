@@ -84,11 +84,23 @@ class Player():
     def removeVisitedMoves(self, possMoves):
         
         remaining = []
-        
         for i in possMoves:
-            [_, stateKey] = self.currState.getStateAndKey(i)
-
-            if not(self.stateMap.checkKey(stateKey)):
+            # [_, stateKey] = self.currState.getStateAndKey(i)
+            s=[]
+            digitATi= self.currState.boardObj.board[tuple(i)]
+            t = tuple([tuple(i),0])
+            
+            for j in tuple(self.currState.boardObj.board.items()):
+                
+                if (j[0]==tuple(i)):
+                    s.append(t)
+                elif (j[1]==0):
+                    s.append((j[0],digitATi))
+                else:
+                    s.append(j)
+                    
+                    
+            if not(self.stateMap.checkKey(tuple(s))):
                 remaining.append(i)
         
         return remaining
