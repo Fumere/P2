@@ -21,6 +21,9 @@ class Player():
         self.possMoves = PriorityQueue()
         
         self.stateMap = HashTable()
+        
+        [state, stateKey] = self.currState.getStateAndKey([2,2])
+        self.stateMap.set(stateKey, state)
     
     
     def getManhCost(self, possMoves):
