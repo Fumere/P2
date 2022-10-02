@@ -8,24 +8,45 @@ Created on Thu Sep 29 01:41:16 2022
 
 # from _PriorityQueue import PriorityQueue
 
+import copy
+#LOC TO VAL IS INIT STATE
 class boardState:
     
-    def __init__ (self, boardObj, nextMove, level):
+    def __init__ (self, boardObj, nextMove, pathCost, prevDigit = 0 ):
         
         self.currLoc = nextMove
         self.boardObj = boardObj
-        self.level = level
+        # self.level = level
+        self.pathCost = pathCost
+        self.parentState = []
         
+        
+    # def getStateKey(self, loc):
+        
+    #     b  = copy.deepcopy(self.boardObj.board)
+    #     b[tuple(self.currLoc)] = b[tuple(loc)]
+    #     b[tuple(loc)] = 0        
+    #     return tuple(b.items())
+    
+    
+    def getStateAndKey(self, loc):
+        
+        b  = copy.deepcopy(self)
+        b.updateBoard(loc)
+        b.parentState = self
+        
+        return [b, tuple(b.boardObj.board.items())]
     
     def updateBoard(self, potMove):
         
-        movingDigit = self.boardObj.board[potMove]
-        self.boardObj.board[self.currLoc] = movingDigit
+        # movingDigit = self.boardObj.board[potMove[0]][potMove[1]]
+        prevDigit = self.boardObj.board[tuple(potMove)]
+        self.boardObj.board[tuple(self.currLoc)] = prevDigit
+        self.boardObj.board[tuple(potMove)] = 0
         
-        self.boardObj.board[potMove] = []
-                
-        self.level+=1
-        
+        # self.prevDigit = prevDigit
+        self.currLoc = potMove
+                        
         
                 
     def getPossMoves(self, defMov):
@@ -50,7 +71,18 @@ class boardState:
         
         return [p2[0]-p1[0], p2[1]-p1[1] ]
     
-            
+    
+    def printAllParents(self):
+        
+        c = self
+        i=0
+        while c:
+            print('\n final route iter ', i)
+            c.boardObj.printState()
+            c = c.parentState
+            i+=1
+    
+    
         
             
         

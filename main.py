@@ -9,5 +9,11 @@ from _Player import Player
 
 
 P = Player()
-nl = P.action()
 
+for i in range(500):
+    print(i,' iter \n')
+    [nl, pc] = P.action()
+    P.updateState(nl, pc)
+    
+    if P.currState.boardObj.goalTest():
+        break

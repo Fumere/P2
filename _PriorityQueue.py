@@ -26,12 +26,12 @@ class PriorityQueue():
 	# for popping an element based on Priority
 	def delete(self):
 		try:
-			max_val = 0
+			min_val = 0
 			for i in range(len(self.queue)):
-				if self.queue[i][1] > self.queue[max_val][1]:
-					max_val = i
-			item = self.queue[max_val][0]
-			del self.queue[max_val]
+				if self.queue[i][1] < self.queue[min_val][1]:
+					min_val = i
+			item = self.queue[min_val][0]
+			del self.queue[min_val]
 			return item
 		except IndexError:
 			print('Error')

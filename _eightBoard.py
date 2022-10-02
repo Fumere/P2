@@ -7,6 +7,7 @@ Created on Wed Sep 28 15:01:03 2022
 """
 
 import math
+import numpy as np
 
 class eightBoard :
     
@@ -14,10 +15,21 @@ class eightBoard :
         
         l = math.sqrt(size+1)
         self.length = int(l)
-        self.board = self.setBoard(positions)
-        self.finalBoard = self.setBoard(final)
+        self.board = self.setLoc2Val(positions)
+        self.finalBoard = self.setVal2Loc(final)
                 
-    def setBoard (self, linearisedCords):
+    def setLoc2Val (self, linearisedCords):
+        
+        rDict = dict()
+        l = self.length
+        for i in range(len(linearisedCords)):
+            
+            digit = linearisedCords[i]
+            rDict[int(i/l) , i%l] = digit
+            
+        return rDict
+    
+    def setVal2Loc (self, linearisedCords):
         
         rDict = dict()
         l = self.length
@@ -30,4 +42,18 @@ class eightBoard :
         
     def goalTest (self):
         
-        return (self.board == self.finalBoard)
+        
+        return all([k==self.board[tuple(v)] for k,v in self.finalBoard.items() ])
+    
+    
+    def printState(self):
+        
+        b = self.board
+        l = self.length
+        board = np.empty((l, l))
+        
+        for k,v in b.items():
+            
+            board[k[0]][k[1]] = v
+    
+        print('\n', board, '\n ---------')

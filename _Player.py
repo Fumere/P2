@@ -8,6 +8,7 @@ Created on Thu Sep 29 18:44:45 2022
 from _eightBoard import eightBoard
 from _boardState import boardState
 from _PriorityQueue import PriorityQueue
+from _HashTable import HashTable
 
 class Player():
     
@@ -15,12 +16,11 @@ class Player():
         
         self.costHeur = costHuer
         self.defMov = defMov
-        self.currState = boardState(boardObj, [2,2], 0)
-        
-        self.pathCost = 0
-        
+        self.currState = boardState(boardObj, [2,2], 0, 0)
+                
         self.possMoves = PriorityQueue()
         
+        self.stateMap = HashTable()
     
     
     def getManhCost(self, possMoves):
@@ -29,15 +29,11 @@ class Player():
         magDistances = []
         for i in possMoves:
             
-            for k in board.keys():
-                
-                if board[k]==i:
-                    
-                    finalLoc = finalBoard[k]
-                    
-                    dist = self.currState.getDirectionMag(i, finalLoc)
-                    magDistances.append(dist)
-                    break
+            valATi = board[tuple(i)] 
+            finalLoc = finalBoard[valATi]
+            
+            dist = self.currState.getDirectionMag(i, finalLoc)
+            magDistances.append(dist)
         
         costs =[]
         for j in range(len(magDistances)):
@@ -68,25 +64,70 @@ class Player():
         for i in range(len(moves)):
             
             move = moves[i]
-            self.possMoves.insert([move, costs[i]])
+            
+            [state, stateKey] = self.currState.getStateAndKey(move)
+            self.possMoves.insert([state, costs[i]])
+            
+            # stateKey = self.currState.getStateKey(move)
+            self.stateMap.set(stateKey, state)
             
         
-        nextLoc = self.possMoves.delete()
+        nextBoardState = self.possMoves.delete()
         
-        return nextLoc          
+        return nextBoardState
+
+
+
+    def removeVisitedMoves(self, possMoves):
+        
+        remaining = []
+        
+        for i in possMoves:
+            [_, stateKey] = self.currState.getStateAndKey(i)
+
+            if not(self.stateMap.checkKey(stateKey)):
+                remaining.append(i)
+        
+        return remaining
                     
                 
     def action(self):
         
         possMoves = self.currState.getPossMoves(self.defMov)
+        
+        remainingMoves = self.removeVisitedMoves(possMoves)
 
-        getManhCost = self.getManhCost(possMoves)  
+        getManhCost = self.getManhCost(remainingMoves)  
         
-        finalCosts = [(x+self.pathCost) for x in getManhCost]
+        finalCosts = [(x+self.currState.pathCost) for x in getManhCost]
         
-        nextLoc = self.updateFrontier(possMoves, finalCosts)
+        nextBoardState = self.updateFrontier(remainingMoves, finalCosts)
         
-        return nextLoc
+        # stateKey = self.currState.getStateKey(nextLoc)
         
+        goingLoc = nextBoardState.parentState.currLoc
         
+        comingLoc = nextBoardState.currLoc
+        
+        direction = self.currState.getDirectionMag(goingLoc, comingLoc)
+        
+        for i in range(len(self.defMov)):
+            if self.defMov[i] == direction: stepCost = self.costHeur[i]; break
+        
+        return [nextBoardState, stepCost]
+        
+     
+    def updateState(self, nextBoardState, pathCost):
+        
+        self.currState = nextBoardState
+        
+        newPathCost = self.currState.pathCost + pathCost
+        
+        # self.stateMap.set(nextLoc, self.currState)
+        
+        self.currState.pathCost = newPathCost
+        
+        # self.currState = copy.deepcopy(self.stateMap.get(nextBoardStateKey))
+        
+        self.currState.boardObj.printState()
         
