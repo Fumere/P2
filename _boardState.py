@@ -19,6 +19,7 @@ class boardState:
         # self.level = level
         self.pathCost = pathCost
         self.parentState = []
+        self.manHcost = 0
     
     def getStateAndKey(self, loc):
         
@@ -64,8 +65,9 @@ class boardState:
         c = self
         i=0
         while c:
-            print('\n final route iter ', i)
+            print('\n final route iter ', 10-i)
             c.boardObj.printState()
+            print('\n g(n):', c.pathCost, '\t h(n): ', c.manHcost )
             c = c.parentState
             i+=1
     

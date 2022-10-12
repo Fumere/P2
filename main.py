@@ -11,9 +11,11 @@ from _Player import Player
 P = Player()
 
 for i in range(500):
-    print(i,' iter \n')
-    [nl, pc] = P.action()
-    P.updateState(nl, pc)
+    # print(i,' iter \n')
+    [nextBoardState, stepCost] = P.action()
+    P.updateState(nextBoardState, stepCost)
     
     if P.currState.boardObj.goalTest():
+        P.currState.manHcost =0
+        P.currState.printAllParents()
         break

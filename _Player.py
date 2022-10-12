@@ -29,37 +29,71 @@ class Player():
     def getManhCost(self, possMoves):
         board = self.currState.boardObj.board
         finalBoard = self.currState.boardObj.finalBoard
-        magDistances = []
+        distDiffs =[]
+        currManhCost = 0
+        for k,v in board.items():
+            # print(k,v)
+            if v != 0:
+                valATi = v
+                finalLoc = finalBoard[v]
+                
+                dist = self.currState.getDirectionMag(k, finalLoc)
+                jthCost =0
+                if dist[1]<0:
+                    
+                    jthCost = jthCost + abs(dist[1]*self.costHeur[0])
+                    
+                if dist[0]<0:
+                        
+                    jthCost = jthCost + abs(dist[0]*self.costHeur[1])
+    
+                if dist[1]>0:
+                    
+                    jthCost = jthCost + abs(dist[1]*self.costHeur[2])
+    
+                if dist[0]>0:
+                    
+                    jthCost = jthCost + abs(dist[0]*self.costHeur[3])  
+                
+                currManhCost += jthCost
+                # print(jthCost)
+            
         for i in possMoves:
             
             valATi = board[tuple(i)] 
             finalLoc = finalBoard[valATi]
             
-            dist = self.currState.getDirectionMag(i, finalLoc)
-            magDistances.append(dist)
-        
-        costs =[]
-        for j in range(len(magDistances)):
-            jthCost =0
-            if magDistances[j][1]<0:
-                
-                jthCost = jthCost + abs(magDistances[j][1]*self.costHeur[0])
-                
-            if magDistances[j][0]<0:
-                    
-                jthCost = jthCost + abs(magDistances[j][0]*self.costHeur[1])
-
-            if magDistances[j][1]>0:
-                
-                jthCost = jthCost + abs(magDistances[j][1]*self.costHeur[2])
-
-            if magDistances[j][0]>0:
-                
-                jthCost = jthCost + abs(magDistances[j][0]*self.costHeur[3])  
+            distOld = self.currState.getDirectionMag(i, finalLoc)
+            distNew = self.currState.getDirectionMag(self.currState.currLoc, finalLoc)
             
-            costs.append(jthCost)
+            distDiffs.append([distNew[0] - distOld[0], distNew[0] - distOld[0]])
         
-        return costs            
+        costsDiff =[]
+        for j in range(len(distDiffs)):
+            jthCost =0
+            if distDiffs[j][1] <0:
+                
+                jthCost = jthCost + distDiffs[j][1]*self.costHeur[0]
+                
+            if distDiffs[j][0]  <0:
+                    
+                jthCost = jthCost + distDiffs[j][0]*self.costHeur[1]
+
+            if distDiffs[j][1]>0:
+                
+                jthCost = jthCost + distDiffs[j][1]*self.costHeur[2]
+
+            if distDiffs[j][0]>0:
+                
+                jthCost = jthCost + distDiffs[j][0]*self.costHeur[3]
+            
+            costsDiff.append(jthCost)
+        
+        
+        manHCostsofPossMoves = [(currManhCost + aCostsDiff) for aCostsDiff in costsDiff]
+        
+        self.currState.manHcost = currManhCost
+        return manHCostsofPossMoves            
 
     
     def updateFrontier(self, moves, costs):            
@@ -127,16 +161,19 @@ class Player():
         direction = self.currState.getDirectionMag(goingLoc, comingLoc)
         
         for i in range(len(self.defMov)):
-            if self.defMov[i] == direction: stepCost = self.costHeur[i]; break
+            if [-1*self.defMov[i][0], -1*self.defMov[i][1]] == direction: stepCost = self.costHeur[i]; break
         
         return [nextBoardState, stepCost]
         
      
-    def updateState(self, nextBoardState, pathCost):
+    def updateState(self, nextBoardState, stepCost):
         
+        # nextBoardState.manHcost = self.getManhCost([nextBoardState.currLoc])
         self.currState = nextBoardState
         
-        newPathCost = self.currState.pathCost + pathCost
+        newPathCost = self.currState.pathCost + stepCost
+        
+        
         
         # self.stateMap.set(nextLoc, self.currState)
         
@@ -144,5 +181,5 @@ class Player():
         
         # self.currState = copy.deepcopy(self.stateMap.get(nextBoardStateKey))
         
-        self.currState.boardObj.printState()
+        # self.currState.boardObj.printState()
         
